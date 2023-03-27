@@ -46,6 +46,15 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Phone)
         </dd>
+        @foreach (var dog in Model.Dogs)
+        {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => dog.Name)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => dog.Name)
+            </dd>
+        }
     </dl>
 </div>
 <div>
