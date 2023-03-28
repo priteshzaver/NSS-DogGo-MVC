@@ -444,3 +444,8 @@ C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Owners\Details.c
 C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Owners\Create.cshtml.g.cs
 C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Owners\Delete.cshtml.g.cs
 C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Owners\Edit.cshtml.g.cs
+C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Dogs\Index.cshtml.g.cs
+C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Dogs\Details.cshtml.g.cs
+C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Dogs\Create.cshtml.g.cs
+C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Dogs\Delete.cshtml.g.cs
+C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Dogs\Edit.cshtml.g.cs
