@@ -3,12 +3,22 @@ using System.Collections.Generic;
 using DogGo.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using DogGo.Models.ViewModels;
+using System.Linq;
+using System;
 
 namespace DogGo.Controllers
 {
     public class WalkersController : Controller
     {
         private readonly IWalkerRepository _walkerRepo;
+        private readonly IWalkRepository _walkRepo;
+        // ASP.NET will give us an instance of our Walker Repository. This is called "Dependency Injection"
+        public WalkersController(IWalkerRepository walkerRepository, IWalkRepository walkRepository)
+        {
+            _walkerRepo = walkerRepository;
+            _walkRepo = walkRepository;
+        }
         // GET: WalkersController
 
         public ActionResult Index()
@@ -22,12 +32,16 @@ namespace DogGo.Controllers
         public ActionResult Details(int id)
         {
             Walker walker = _walkerRepo.GetWalkerById(id);
-            if (walker == null)
+            List<Walks> walks = _walkRepo.GetWalksByWalkerId(walker.Id);
+            
+            WalkerProfileViewModel vm = new WalkerProfileViewModel()
             {
-                return NotFound();
-            }
+                Walker = walker,
+                Walks = walks,
+                
+            };
 
-            return View(walker);
+            return View(vm);
         }
 
         // GET: WalkersController/Create
@@ -54,21 +68,30 @@ namespace DogGo.Controllers
         // GET: WalkersController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            Walker walker = _walkerRepo.GetWalkerById(id);
+
+            if (walker == null)
+            {
+                return NotFound();
+            }
+
+            return View(walker);
         }
 
         // POST: WalkersController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Walker walker)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _walkerRepo.UpdateWalker(walker);
+
+                return RedirectToAction("Index");
             }
-            catch
+            catch(Exception)
             {
-                return View();
+                return View(walker);
             }
         }
 
@@ -91,14 +114,7 @@ namespace DogGo.Controllers
             {
                 return View();
             }
-        }
+        }    
 
-       
-
-        // ASP.NET will give us an instance of our Walker Repository. This is called "Dependency Injection"
-        public WalkersController(IWalkerRepository walkerRepository)
-        {
-            _walkerRepo = walkerRepository;
-        }
     }
 }
