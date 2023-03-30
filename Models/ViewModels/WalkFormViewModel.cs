@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DogGo.Models.ViewModels
 {
@@ -7,5 +8,6 @@ namespace DogGo.Models.ViewModels
         public Walks Walk { get; set; }
         public List<Dog> Dogs { get; set; }
         public List<Walker> Walkers { get; set; }
+        public List<int> SelectedDogs { get; set; }
     }
 }

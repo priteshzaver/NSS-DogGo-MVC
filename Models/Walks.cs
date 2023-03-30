@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DogGo.Models
 {
@@ -11,5 +13,8 @@ namespace DogGo.Models
         public int DogId { get; set; }
         public Walker Walker { get; set; }
         public Dog Dog { get; set; }
+
+        [BindProperty]
+        public List<int> AreChecked { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using DogGo.Models.ViewModels;
 using DogGo.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DogGo.Controllers
 {
@@ -40,12 +41,13 @@ namespace DogGo.Controllers
         {
             List<Dog> dogs = _dogRepo.GetAllDogs();
             List<Walker> walkers = _walkerRepo.GetAllWalkers();
-
+            
+            ViewBag.SelectedDogs = new MultiSelectList(dogs, "Id", "Name");
             WalkFormViewModel vm = new WalkFormViewModel()
             {
                 Walk = new Walks(),
                 Dogs = dogs,
-                Walkers = walkers
+                Walkers = walkers,
             };
 
             return View(vm);
@@ -54,17 +56,26 @@ namespace DogGo.Controllers
         // POST: WalksController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Walks walk)
+        public ActionResult Create(WalkFormViewModel viewModel)
         {
             try
             {
-                _walksRepo.AddWalk(walk);
+                foreach(int dogId in viewModel.SelectedDogs)
+                {
+                    _walksRepo.AddWalk(new Walks()
+                    {
+                        Date = viewModel.Walk.Date,
+                        Duration = viewModel.Walk.Duration,
+                        WalkerId = viewModel.Walk.WalkerId,
+                        DogId = dogId
+                    });
+                }
 
                 return RedirectToAction("Index");
             }
             catch(Exception)
             {
-                return View(walk);
+                return View(viewModel);
             }
         }
 
@@ -100,12 +111,13 @@ namespace DogGo.Controllers
         // POST: WalksController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, Walks walk)
+        public ActionResult Delete(Walks walk)
         {
             try
-            {
-                _walksRepo.DeleteWalk(id);
-
+            {   foreach(int walkId in walk.AreChecked)
+                {
+                    _walksRepo.DeleteWalk(walkId);
+                }
                 return RedirectToAction("Index");
             }
             catch(Exception)

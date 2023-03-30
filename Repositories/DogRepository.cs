@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace DogGo.Repositories
 {
@@ -98,19 +99,38 @@ namespace DogGo.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
-                    INSERT INTO Dog ([Name], OwnerId, Breed)
-                    OUTPUT INSERTED.ID
-                    VALUES (@name, @ownerId, @breed);
-                ";
+                    cmd.CommandText = @"INSERT INTO Dog ([Name], OwnerId, Breed, Notes, ImageUrl)
+                                        OUTPUT INSERTED.ID
+                                        VALUES (@name, @ownerId, @breed, @notes, @imageUrl);";
 
                     cmd.Parameters.AddWithValue("@name", dog.Name);
-                    cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);
                     cmd.Parameters.AddWithValue("@breed", dog.Breed);
+                    cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);
 
-                    int id = (int)cmd.ExecuteScalar();
+                    // nullable columns
+                    if (dog.Notes == null)
+                    {
+                        cmd.Parameters.AddWithValue("@notes", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@notes", dog.Notes);
+                    }
 
-                    dog.Id = id;
+                    if (dog.ImageUrl == null)
+                    {
+                        cmd.Parameters.AddWithValue("@imageUrl", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@imageUrl", dog.ImageUrl);
+                    }
+
+
+                    int newlyCreatedId = (int)cmd.ExecuteScalar();
+
+                    dog.Id = newlyCreatedId;
+
                 }
             }
         }
@@ -123,12 +143,11 @@ namespace DogGo.Repositories
 
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
-                            UPDATE Dog
-                            SET [Name] = @name, 
-                                OwnerId = @ownerId,
-                                Breed = @breed
-                            WHERE Id = @id";
+                    cmd.CommandText = @"UPDATE Dog
+                                        SET [Name] = @name, 
+                                            Breed = @breed
+                                        WHERE Id = @id
+                                            AND OwnerId = @ownerId";
 
                     cmd.Parameters.AddWithValue("@name", dog.Name);
                     cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);

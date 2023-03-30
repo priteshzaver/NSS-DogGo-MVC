@@ -9,6 +9,7 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form asp-action="Delete">
 <table class="table">
     <thead>
         <tr>
@@ -22,12 +23,14 @@
                 @Html.DisplayNameFor(model => model.Duration)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.WalkerId)
+                @Html.DisplayNameFor(model => model.Walker.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DogId)
+                @Html.DisplayNameFor(model => model.Dog.Name)
             </th>
-            <th></th>
+            <th>
+                @Html.DisplayName("Delete")
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -40,13 +43,33 @@
                 @Html.DisplayFor(modelItem => item.Date)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Duration)
+                        @{
+                            int totalDuration = item.Duration;
+                            double totalMinutes = totalDuration / 60.0;
+                            double hours = totalMinutes / 60.0;
+                            double minutesLeft = totalMinutes % 60.0;
+                            if (hours < 1.0)
+                            {
+                                hours = 0;
+                                minutesLeft = totalMinutes;
+                            }
+                        }
+                        <span>
+                            @{
+                                @Math.Floor(hours)
+                            }hr @{
+                                @Math.Floor(minutesLeft)
+                            }min
+                        </span>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.WalkerId)
+                @Html.DisplayFor(modelItem => item.Walker.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DogId)
+                @Html.DisplayFor(modelItem => item.Dog.Name)
+            </td>
+            <td>
+                <input name="AreChecked" type="checkbox" value="@item.Id" />
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
@@ -57,3 +80,5 @@
 }
     </tbody>
 </table>
+    <input asp-action="Delete" type="submit" value="Delete"  class="btn btn-danger">
+</form>

@@ -99,7 +99,7 @@ namespace DogGo.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT Id, [Name], Email, Address, Phone, NeighbhorhoodId
+                    cmd.CommandText = @"SELECT Id, [Name], Email, Address, Phone, NeighborhoodId
                                         FROM Owner
                                         WHERE Email = @email";
 
