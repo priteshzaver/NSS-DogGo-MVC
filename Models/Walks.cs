@@ -11,8 +11,10 @@ namespace DogGo.Models
         public int Duration { get; set; }
         public int WalkerId { get; set; }
         public int DogId { get; set; }
+        public int WalkStatusId { get; set; }
         public Walker Walker { get; set; }
         public Dog Dog { get; set; }
+        public WalkStatus WalkStatus { get; set; }
 
         [BindProperty]
         public List<int> AreChecked { get; set; }

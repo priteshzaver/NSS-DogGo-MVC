@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DogGo.Controllers
 {
@@ -18,13 +19,15 @@ namespace DogGo.Controllers
         private readonly IDogRepository _dogRepo;
         private readonly IWalkerRepository _walkerRepo;
         private readonly INeighborhoodRepository _neighborhoodRepo;
+        private readonly IWalkRepository _walkRepo;
 
-        public OwnersController(IOwnerRepository ownerRepository, IDogRepository dogRepository, IWalkerRepository walkerRepository, INeighborhoodRepository neighborhoodRepository)
+        public OwnersController(IOwnerRepository ownerRepository, IDogRepository dogRepository, IWalkerRepository walkerRepository, INeighborhoodRepository neighborhoodRepository, IWalkRepository walkRepository)
         {
             _ownerRepo = ownerRepository;
             _dogRepo = dogRepository;
             _walkerRepo = walkerRepository;
             _neighborhoodRepo = neighborhoodRepository;
+            _walkRepo = walkRepository;
         }
         // GET: OwnersController
         public ActionResult Index()
@@ -35,17 +38,20 @@ namespace DogGo.Controllers
         }
 
         // GET: OwnersController/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details()
         {
-            Owner owner = _ownerRepo.GetOwnerById(id);
+            int ownerId = GetCurrentUserId();
+            Owner owner = _ownerRepo.GetOwnerById(ownerId);
             List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
             List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
+            List<Walks> walks = _walkRepo.GetWalksByOwnerId(owner.Id);
 
             ProfileViewModel vm = new ProfileViewModel()
             {
                 Owner = owner,
                 Dogs = dogs,
-                Walkers = walkers
+                Walkers = walkers,
+                Walks = walks
             };
 
             return View(vm);
@@ -181,6 +187,59 @@ namespace DogGo.Controllers
         {
             await HttpContext.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        private int GetCurrentUserId()
+        {
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.Parse(id);
+        }
+
+        //GET: Owners/RequestWalk/5
+        public ActionResult RequestWalk(int id)
+        {
+            int ownerId = GetCurrentUserId();
+            Owner owner = _ownerRepo.GetOwnerById(ownerId);
+            Walker walker = _walkerRepo.GetWalkerById(id);
+            List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
+            List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
+
+            ViewBag.SelectedDogs = new MultiSelectList(dogs, "Id", "Name");
+            WalkFormViewModel vm = new WalkFormViewModel()
+            {
+                Walk = new Walks(),
+                Dogs = dogs,
+                Walker = walker
+            };
+
+            return View(vm);
+        }
+
+        // POST: Owners/RequestWalk/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RequestWalk(WalkFormViewModel viewModel)
+        {
+            try
+            {
+                foreach (int dogId in viewModel.SelectedDogs)
+                {
+                    _walkRepo.AddWalk(new Walks()
+                    {
+                        Date = viewModel.Walk.Date,
+                        Duration = viewModel.Walk.Duration,
+                        WalkerId = viewModel.Walker.Id,
+                        DogId = dogId,
+                        WalkStatusId = 1
+                    });
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception)
+            {
+                return View(viewModel);
+            }
         }
     }
 }

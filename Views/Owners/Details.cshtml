@@ -33,7 +33,7 @@
             <div class="row">
                 @foreach (Dog dog in Model.Dogs)
                 {
-                    <div class="card m-4" style="width: 18rem;">
+                    <div class="card m-2" style="width: 18rem;">
                         @if (String.IsNullOrEmpty(dog.ImageUrl))
                         {
                             <img src="https://cdn.pixabay.com/photo/2018/08/15/13/12/dog-3608037_960_720.jpg"
@@ -63,18 +63,58 @@
             </div>
         </section>
 
-        <section class="col-lg-4 col-md-8 container mt-5">
-            <h1>Walkers Near Me</h1>
+        <section class="col-lg-4 container mt-5">
+            <div>
+                <h2>Walkers Near Me</h2>
 
-            <ul class="list-group mt-4">
-                @foreach (Walker walker in Model.Walkers)
-                {
-                    <li class="list-group-item disabled" aria-disabled="true">
-                        <img src="@walker.ImageUrl" style="width:50px" />
-                        <span class="font-weight-bold ml-4">@walker.Name</span>
-                    </li>
-                }
-            </ul>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.Walker.ImageUrl)</th>
+                            <th>@Html.DisplayNameFor(model => model.Walker.Name)</th>
+                            <th>@Html.DisplayName("Request Walk")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Walkers)
+                        {
+                            <tr>
+                                <td>
+                                    <img class="bg-info" src="@item.ImageUrl" alt="avatar" />
+                                </td>
+                                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                                <td>@Html.ActionLink("Request Walk", "RequestWalk", new { id=item.Id })</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>                
+            </div>
+
+            <div class="mt-5">
+                <h2>Upcoming Walks</h2>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.Walker.Name)</th>
+                            <th>@Html.DisplayNameFor(model => model.Dog.Name)</th>
+                            <th>@Html.DisplayNameFor(model => model.Walk.Date)</th>
+                            <th>@Html.DisplayNameFor(model => model.Walk.WalkStatus.Description)</th>
+                        </tr>
+                    </thead>
+                    <tbody>                    
+                        @foreach (var item in Model.Walks)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.Walker.Name)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Dog.Name)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Date)</td>
+                                <td>@Html.DisplayFor(modelItem => item.WalkStatus.Description)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </section>
     </div>
 </div>

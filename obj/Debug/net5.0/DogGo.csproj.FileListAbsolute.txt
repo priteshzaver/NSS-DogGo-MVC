@@ -454,3 +454,4 @@ C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Walks\Index.csht
 C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Walks\Create.cshtml.g.cs
 C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Walks\Delete.cshtml.g.cs
 C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Owners\Login.cshtml.g.cs
+C:\Users\Pinto\workspace\SQL\DogGo\obj\Debug\net5.0\Razor\Views\Owners\RequestWalk.cshtml.g.cs

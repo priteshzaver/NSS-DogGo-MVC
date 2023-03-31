@@ -68,7 +68,7 @@ namespace DogGo.Controllers
             int ownerId = GetCurrentUserId();
             Dog dog = _dogRepo.GetDogById(id);
 
-            if (dog.OwnerId != ownerId)
+            if (dog == null || dog.OwnerId != ownerId)
             {
                 return NotFound();
             }
