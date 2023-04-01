@@ -167,20 +167,17 @@ namespace DogGo.Controllers
             }
 
             List<Claim> claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, owner.Id.ToString()),
-        new Claim(ClaimTypes.Email, owner.Email),
-        new Claim(ClaimTypes.Role, "DogOwner"),
-    };
+            {
+                new Claim(ClaimTypes.NameIdentifier, owner.Id.ToString()),
+                new Claim(ClaimTypes.Email, owner.Email),
+                new Claim(ClaimTypes.Role, "DogOwner"),
+            };
 
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity));
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-            return RedirectToAction("Index", "Dogs");
+            return RedirectToAction("Details", "Owners");
         }
 
         public async Task<ActionResult> Logout()

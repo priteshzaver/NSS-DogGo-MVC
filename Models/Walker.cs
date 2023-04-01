@@ -11,6 +11,10 @@ namespace DogGo.Models
         [MaxLength(35)]
         public string Name { get; set; }
 
+        [EmailAddress]
+        [Required]
+        public string Email { get; set; }
+
         [Required]
         [DisplayName("Neighborhood")]
         public int NeighborhoodId { get; set; }

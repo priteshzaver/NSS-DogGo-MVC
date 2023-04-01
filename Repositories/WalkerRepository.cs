@@ -177,7 +177,6 @@ namespace DogGo.Repositories
                 }
             }
         }
-
         public void DeleteWalker(int walkerId)
         {
             using (SqlConnection conn = Connection)
@@ -192,6 +191,38 @@ namespace DogGo.Repositories
                     cmd.Parameters.AddWithValue("@id", walkerId);
 
                     cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public Walker GetWalkerByEmail(string email)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT Id, [Name], Email, ImageUrl, NeighborhoodId
+                                        FROM Walker
+                                        WHERE Email = @email";
+
+                    cmd.Parameters.AddWithValue("@email", email);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            Walker walker = new Walker()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
+                                NeighborhoodId = reader.GetInt32(reader.GetOrdinal("NeighborhoodId"))
+                            };
+                            return walker;
+                        }
+
+                        return null;
+                    }
                 }
             }
         }

@@ -13,14 +13,12 @@
         <form asp-action="RequestWalk">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Walk.Date" class="control-label"></label>
-                <input asp-for="Walk.Date" class="form-control" />
+                <label asp-for="Walk.Date" class="control-label "></label>
+                <input asp-for="Walk.Date" value="" class="form-control" />
                 <span asp-validation-for="Walk.Date" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Walk.Duration" class="control-label"></label>
-                <input asp-for="Walk.Duration" class="form-control" />
-                <span asp-validation-for="Walk.Duration" class="text-danger"></span>
+                <input asp-for="Walk.Duration" type="hidden" />
             </div>
             <div class="form-group">
                <input asp-for="Walker.Id" type="hidden" />

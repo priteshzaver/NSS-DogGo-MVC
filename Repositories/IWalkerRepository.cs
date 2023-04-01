@@ -7,6 +7,7 @@ namespace DogGo.Repositories
     {
         List<Walker> GetAllWalkers();
         Walker GetWalkerById(int id);
+        Walker GetWalkerByEmail(string email);
         void AddWalker(Walker walker);
         void UpdateWalker (Walker walker);
         void DeleteWalker(int walkerId);

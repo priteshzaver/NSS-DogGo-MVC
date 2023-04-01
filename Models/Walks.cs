@@ -15,6 +15,7 @@ namespace DogGo.Models
         public Walker Walker { get; set; }
         public Dog Dog { get; set; }
         public WalkStatus WalkStatus { get; set; }
+        public List<Dog> Dogs { get; set; } = new List<Dog>();
 
         [BindProperty]
         public List<int> AreChecked { get; set; }

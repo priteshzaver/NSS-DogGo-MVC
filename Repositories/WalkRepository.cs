@@ -70,9 +70,12 @@ namespace DogGo.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT Id, [Date], Duration, WalkerId, DogId
-                                        FROM Walks
-                                        WHERE Id = @id";
+                    cmd.CommandText = @"SELECT w.Id, w.[Date], w.Duration, w.WalkerId, w.DogId, walker.Name AS WalkerName, d.Name AS DogName, o.Name AS OwnerName
+                                        FROM Walks w
+                                        LEFT JOIN Walker ON w.WalkerId = Walker.Id
+                                        LEFT JOIN Dog d ON w.DogId = d.Id
+                                        LEFT JOIN Owner o ON d.OwnerId = o.Id
+                                        WHERE w.Id = @id";
 
                     cmd.Parameters.AddWithValue("@id", id);
 
@@ -86,7 +89,19 @@ namespace DogGo.Repositories
                                 Date = reader.GetDateTime(reader.GetOrdinal("Date")),
                                 Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
                                 WalkerId = reader.GetInt32(reader.GetOrdinal("WalkerId")),
-                                DogId = reader.GetInt32(reader.GetOrdinal("DogId"))
+                                DogId = reader.GetInt32(reader.GetOrdinal("DogId")),
+                                Walker = new Walker()
+                                {
+                                    Name = reader.GetString(reader.GetOrdinal("WalkerName"))
+                                },
+                                Dog = new Dog()
+                                {
+                                    Name = reader.GetString(reader.GetOrdinal("DogName")),
+                                    Owner = new Owner()
+                                    {
+                                        Name = reader.GetString(reader.GetOrdinal("OwnerName"))
+                                    }
+                                }
                             };
 
                             return walk;
@@ -108,10 +123,11 @@ namespace DogGo.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT w.Id, w.[Date], w.Duration, o.Name
+                    cmd.CommandText = @"SELECT w.Id, w.[Date], w.Duration, w.WalkStatusId, d.Name AS DogName, o.Name AS OwnerName, ws.Description 
                                         FROM Walks w
                                         LEFT JOIN Dog d ON w.DogId = d.Id
                                         LEFT JOIN Owner o ON d.OwnerId = o.Id
+                                        LEFT JOIN WalkStatus ws ON w.WalkStatusId = ws.Id
                                         WHERE WalkerId = @walkerId";
                     cmd.Parameters.AddWithValue("@walkerId", id);
 
@@ -124,15 +140,34 @@ namespace DogGo.Repositories
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             Date = reader.GetDateTime(reader.GetOrdinal("Date")),
                             Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
+                            WalkStatusId = reader.GetInt32(reader.GetOrdinal("WalkStatusId")),
+
                             Dog = new Dog()
                             {
+                                Name = reader.GetString(reader.GetOrdinal("DogName")),
                                 Owner = new Owner()
                                 {
-                                    Name = reader.GetString(reader.GetOrdinal("Name"))
+                                    Name = reader.GetString(reader.GetOrdinal("OwnerName"))
                                 }
+                            },
+                            WalkStatus = new WalkStatus()
+                            {
+                                Description = reader.GetString(reader.GetOrdinal("Description"))
                             }
                         };
                             walks.Add(walk);
+
+                            if(!reader.IsDBNull(reader.GetOrdinal("DogName")))
+                            {
+                                walk.Dogs.Add(new Dog()
+                                {
+                                    Name = reader.GetString(reader.GetOrdinal("DogName")),
+                                    Owner = new Owner()
+                                    {
+                                        Name = reader.GetString(reader.GetOrdinal("OwnerName"))
+                                    }
+                                });
+                            }
                     }
                     return walks;
                 }
@@ -220,14 +255,17 @@ namespace DogGo.Repositories
                     cmd.CommandText = @"UPDATE Walks
                                         SET [Date] = @date, 
                                             Duration = @duration, 
-                                            WalkerId = @walkerId
-                                            DogId = @dogId
+                                            WalkerId = @walkerId,
+                                            DogId = @dogId,
+                                            WalkStatusId = @walkStatusId
                                         WHERE Id = @id";
 
                     cmd.Parameters.AddWithValue("@date", walk.Date);
                     cmd.Parameters.AddWithValue("@duration", walk.Duration);
                     cmd.Parameters.AddWithValue("@walkerId", walk.WalkerId);
                     cmd.Parameters.AddWithValue("@dogId", walk.DogId);
+                    cmd.Parameters.AddWithValue("@walkStatusId", walk.WalkStatusId);
+                    cmd.Parameters.AddWithValue("@id", walk.Id);
 
                     cmd.ExecuteNonQuery();
                 }

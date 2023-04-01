@@ -1,0 +1,116 @@
+﻿@model IEnumerable<DogGo.Models.Walks>
+
+@{
+    ViewData["Title"] = "ManageWalks";
+}
+<div>
+    <h1>ManageWalks</h1>
+
+    <div class="row mt-5">
+        <section class="mr-5">
+            <h2 class="text-center">Confirm Appointments</h2>
+
+            <hr class="mt-5" />
+            <div class="clearfix"></div>
+
+            <div class="col border border-dark container h-auto">
+                @foreach(Walks walk in Model)
+                {
+                    @if (walk.WalkStatusId == 1)
+                    {
+                        <div class="card m-2" style="width: 18rem;">
+                            <form asp-action="ManageWalks">
+                                <div class="card-body">
+                                    <input asp-for="@walk.Id" type="hidden" />
+                                    <div class="form-group">@walk.Dog.Owner.Name</div>
+                                    <div class="form-group">@walk.Dog.Name</div>
+                                    <div class="form-group">@walk.Date</div>
+                                    <button class="btn btn-primary float-right" asp-action="ManageWalks" value="Confirm">Confirm</button>
+                                </div>
+                            </form>
+                        </div>
+                    }
+                }
+            </div>
+        </section>
+
+        <section class="ml-2">
+            <h2 class="text-center">My Appointments</h2>
+
+            <hr class="mt-5" />
+            <div class="clearfix"></div>
+
+            <table class="table table-striped w-auto">
+                <thead>
+                    <tr>                    
+                        <th>
+                            @Html.DisplayNameFor(model => model.Dog.Owner.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Dog.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Duration)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Date)
+                        </th>
+                        <th>
+                            @Html.DisplayName("Completed")
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach (var item in Model) 
+            {
+                if(item.WalkStatusId != 1)
+                {                            
+                    <tr>                    
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Dog.Owner.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Dog.Name)
+                        </td>
+                        @if(item.WalkStatusId == 2)
+                                {
+                                    <td>
+                                        TBD
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Duration)                                      
+                                    </td>
+                                }
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Date)
+                        </td>
+                        @if(item.WalkStatusId == 2)
+                                {
+                                    <td>
+                                        <button>@Html.ActionLink("Complete", "CompleteWalk", new { id=item.Id })</button>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        Yes
+                                    </td>                                    
+                                }
+                    </tr>
+                }
+            }
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

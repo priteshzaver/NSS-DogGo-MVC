@@ -7,6 +7,9 @@ using DogGo.Models.ViewModels;
 using System.Linq;
 using System;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 namespace DogGo.Controllers
 {
@@ -26,24 +29,16 @@ namespace DogGo.Controllers
 
         public ActionResult Index()
         {
-            int userId = GetCurrentUserId();
-            if (userId != 0)
-            {
-                Owner currentUser = _ownerRepo.GetOwnerById(userId);
-                List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(currentUser.NeighborhoodId);
-                return View(walkers);
-            }
-            else
-            {
-                List<Walker> allWalkers = _walkerRepo.GetAllWalkers();
-                return View(allWalkers);
-            }
+            List<Walker> walkers = _walkerRepo.GetAllWalkers();
+
+            return View(walkers);
         }
 
         // GET: WalkersController/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details()
         {
-            Walker walker = _walkerRepo.GetWalkerById(id);
+            int walkerId = GetCurrentUserId();
+            Walker walker = _walkerRepo.GetWalkerById(walkerId);
             List<Walks> walks = _walkRepo.GetWalksByWalkerId(walker.Id);
             
             WalkerProfileViewModel vm = new WalkerProfileViewModel()
@@ -127,7 +122,6 @@ namespace DogGo.Controllers
                 return View();
             }
         }
-
         private int GetCurrentUserId()
         {
             string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -138,6 +132,97 @@ namespace DogGo.Controllers
             else
             {
                 return int.Parse(id);
+            }
+        }
+        public ActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<ActionResult> Login(LoginViewModel viewModel)
+        {
+            Walker walker = _walkerRepo.GetWalkerByEmail(viewModel.Email);
+
+            if (walker == null)
+            {
+                return Unauthorized();
+            }
+
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, walker.Id.ToString()),
+                new Claim(ClaimTypes.Email, walker.Email),
+                new Claim(ClaimTypes.Role, "DogWalker"),
+            };
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+            return RedirectToAction("Index", "Walkers");
+        }
+        public async Task<ActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        //GET: Walkers/ManageMyWalks
+        public ActionResult ManageWalks()
+        {
+            int walkerId = GetCurrentUserId();
+            List<Walks> walks = _walkRepo.GetWalksByWalkerId(walkerId);
+
+            return View(walks);
+        }
+
+        //POST: Walkers/ManageMyWalks
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ManageWalks(Walks walk)
+        {
+            try
+            {
+                Walks confirmWalk = _walkRepo.GetWalkById(walk.Id);
+                confirmWalk.WalkStatusId = 2;
+                _walkRepo.UpdateWalk(confirmWalk);
+
+                return RedirectToAction("ManageWalks");
+            }
+            catch (Exception)
+            {
+                return View();
+            }
+        }
+        //GET: Walkers/CompleteWalk/5
+        public ActionResult CompleteWalk(int id)
+        {
+            Walks walk = _walkRepo.GetWalkById(id);
+            if (walk == null)
+            {
+                return NotFound();
+            }
+
+            return View(walk);
+        }
+
+        //POST: Walkers/CompleteWalk/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CompleteWalk(int id, Walks walk)
+        {
+            try
+            {
+                Walks confirmWalk = _walkRepo.GetWalkById(walk.Id);
+                confirmWalk.WalkStatusId = 3;
+                confirmWalk.Duration = walk.Duration;
+                _walkRepo.UpdateWalk(confirmWalk);
+
+                return RedirectToAction("ManageWalks");
+            }
+            catch (Exception)
+            {
+                return View();
             }
         }
     }
